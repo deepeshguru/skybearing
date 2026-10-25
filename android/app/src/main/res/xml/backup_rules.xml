@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="file" path="offline_sky/" />
+    <!-- This catalog and its installation metadata are reproducible from the APK. -->
+    <exclude domain="root" path="app_flutter/sky_catalog.sqlite" />
+    <exclude domain="root" path="app_flutter/sky_catalog.sqlite.revision" />
+    <exclude domain="root" path="app_flutter/sky_catalog.sqlite.install.lock" />
+    <exclude domain="root" path="app_flutter/sky_catalog.sqlite.installing" />
+    <exclude domain="root" path="app_flutter/sky_catalog.sqlite.revision.installing" />
+    <exclude domain="root" path="app_flutter/flutter_assets/" />
+</full-backup-content>

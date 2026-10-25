@@ -1,0 +1,84 @@
+[
+  {
+    "id": "black-hole:sgr-a-star",
+    "name": "Sagittarius A*",
+    "ra_hours": 17.761121108,
+    "dec_deg": -29.007824972,
+    "aliases": ["Sgr A*", "Sagittarius A star", "Milky Way central black hole"],
+    "description": "The supermassive black hole at the center of the Milky Way. The marker is its radio source position; it is not a visible image of the event horizon.",
+    "source": "SIMBAD snapshot 2026-10-16: NAME Sgr A* (radio coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:m87-star",
+    "name": "M87*",
+    "ra_hours": 12.513728718,
+    "dec_deg": 12.391123246,
+    "aliases": ["M87", "Virgo A central black hole", "NGC 4486 black hole"],
+    "description": "The supermassive black hole at the center of the Virgo A galaxy (M87). The marker uses the galaxy nucleus coordinates; it is not a visible image of the event horizon.",
+    "source": "SIMBAD snapshot 2026-10-16: M 87 (radio coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:cygnus-x1",
+    "name": "Cygnus X-1",
+    "ra_hours": 19.972687704,
+    "dec_deg": 35.201606809,
+    "aliases": ["Cyg X-1", "HD 226868", "HIP 98298", "HDE 226868"],
+    "description": "A well-studied stellar-mass black-hole X-ray binary. The marker uses the measured optical counterpart position, not the black hole's visual appearance.",
+    "source": "SIMBAD snapshot 2026-10-16: HD 226868 (optical coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:v404-cygni",
+    "name": "V404 Cygni",
+    "ra_hours": 20.401062418,
+    "dec_deg": 33.867211432,
+    "aliases": ["V404 Cyg", "GS 2023+338", "Cygnus X-ray nova 1989"],
+    "description": "A stellar-mass black-hole X-ray binary in Cygnus. The marker uses the measured optical counterpart position, not the black hole's visual appearance.",
+    "source": "SIMBAD snapshot 2026-10-16: V* V404 Cyg (optical coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:grs-1915-plus-105",
+    "name": "GRS 1915+105",
+    "ra_hours": 19.253209933,
+    "dec_deg": 10.945807000,
+    "aliases": ["GRS 1915", "V1487 Aql", "Aquila microquasar"],
+    "description": "A Galactic microquasar containing a stellar-mass black hole. The marker uses the measured infrared source position, not the black hole's visual appearance.",
+    "source": "SIMBAD snapshot 2026-10-16: Granat 1915+105 (infrared coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:lmc-x1",
+    "name": "LMC X-1",
+    "ra_hours": 5.660785675,
+    "dec_deg": -69.743203209,
+    "aliases": ["Large Magellanic Cloud X-1", "LMC X1"],
+    "description": "A high-mass X-ray binary in the Large Magellanic Cloud with a stellar-mass black hole. The marker is the measured optical counterpart position.",
+    "source": "SIMBAD snapshot 2026-10-16: X LMC X-1 (optical coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:lmc-x3",
+    "name": "LMC X-3",
+    "ra_hours": 5.649064545,
+    "dec_deg": -64.084254983,
+    "aliases": ["Large Magellanic Cloud X-3", "LMC X3"],
+    "description": "A high-mass X-ray binary in the Large Magellanic Cloud with a stellar-mass black hole. The marker is the measured optical counterpart position.",
+    "source": "SIMBAD snapshot 2026-10-16: X LMC X-3 (optical coordinates, J2000)."
+  },
+  {
+    "id": "black-hole:xte-j1118-plus-480",
+    "name": "XTE J1118+480",
+    "ra_hours": 11.302998067,
+    "dec_deg": 48.036754092,
+    "aliases": ["KV UMa", "XTE J1118+480", "KV Ursae Majoris"],
+    "description": "A low-mass X-ray binary containing a stellar-mass black hole. The marker uses the measured optical counterpart position, not the black hole's visual appearance.",
+    "source": "SIMBAD snapshot 2026-10-16: V* KV UMa (optical coordinates, J2000)."
+  },
+  {
+    "id": "galaxy:milky-way",
+    "name": "Milky Way",
+    "kind": "Galaxy",
+    "ra_hours": 17.761121108,
+    "dec_deg": -29.007824972,
+    "aliases": ["Milky Way Galaxy", "The Galaxy", "Milky Way galactic center"],
+    "description": "The galaxy that contains our Solar System. This direction marker points to its Galactic Center at Sagittarius A*; the Milky Way is an extended structure and cannot be represented by one point on the sky.",
+    "source": "SIMBAD snapshot 2026-10-16: NAME Sgr A* (radio coordinates, J2000); marker represents the Galactic Center."
+  }
+]

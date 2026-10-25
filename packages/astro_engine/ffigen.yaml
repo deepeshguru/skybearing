@@ -1,0 +1,12 @@
+name: AstroEngineBindings
+description: Native bindings for the astronomy calculation bridge.
+output: lib/astro_engine_bindings_generated.dart
+headers:
+  entry-points:
+    - src/astro_bridge.h
+  include-directives:
+    - src/astro_bridge.h
+ffi-native:
+comments:
+  style: any
+  length: full

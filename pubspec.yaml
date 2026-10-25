@@ -1,0 +1,34 @@
+name: offline_sky
+description: Fully offline planetarium and sky guide for Android and iOS.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  camera: ^0.12.1
+  astro_engine:
+    path: packages/astro_engine
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  geolocator: ^14.1.1
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  shared_preferences: ^2.5.6
+  sqflite: ^2.4.4+2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/catalogs/sky_catalog.sqlite
+    - assets/catalogs/notable_objects.json
+    - assets/licenses/

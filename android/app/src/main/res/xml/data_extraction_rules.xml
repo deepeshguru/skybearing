@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="offline_sky/" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.revision" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.install.lock" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.installing" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.revision.installing" />
+        <exclude domain="root" path="app_flutter/flutter_assets/" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="offline_sky/" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.revision" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.install.lock" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.installing" />
+        <exclude domain="root" path="app_flutter/sky_catalog.sqlite.revision.installing" />
+        <exclude domain="root" path="app_flutter/flutter_assets/" />
+    </device-transfer>
+</data-extraction-rules>
