@@ -222,7 +222,7 @@ void main() {
 
       await tester.tap(zoomOut);
       await tester.pumpAndSettle();
-      expect(find.text('86° field · geometric sky'), findsOneWidget);
+      expect(find.text('94° field · geometric sky'), findsOneWidget);
 
       await tester.tap(zoomIn);
       await tester.pumpAndSettle();

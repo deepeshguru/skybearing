@@ -14,6 +14,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(skyStateProvider);
     final orientation = ref.watch(orientationProvider);
+    final calibration = ref.watch(orientationCalibrationProvider);
     final fov = ref.watch(cameraVerticalFovProvider);
     final location = state.location;
     return SafeArea(
@@ -177,7 +178,7 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         const Text(
-                          'Hold the phone upright and move it slowly in a figure eight if the compass direction appears unstable. Metal, magnets, vehicle dashboards, and nearby electronics can disturb the magnetometer. Sensor confidence is separate from ephemeris accuracy.',
+                          'Hold the phone upright and move it slowly in a figure eight if the compass direction appears unstable. Metal, magnets, vehicle dashboards, and nearby electronics can disturb the magnetometer. Sensor status does not detect all local magnetic interference.',
                           style: TextStyle(
                             color: Color(0xFF93A2B8),
                             height: 1.4,
@@ -227,6 +228,56 @@ class SettingsScreen extends ConsumerWidget {
                       const Text(
                         'Adjust until the AR guide matches the camera view on your device. The value is saved locally; lens distortion, camera cropping, and sensor alignment still affect overlay placement.',
                         style: TextStyle(color: Color(0xFF93A2B8), height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+                _SettingsCard(
+                  title: 'Pointing alignment',
+                  icon: Icons.explore_outlined,
+                  subtitle: 'Adjust sensor direction for this device',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Use these offsets if a known target appears away from the guide marker. They apply to both the pointing guide and camera overlay.',
+                        style: TextStyle(color: Color(0xFF93A2B8), height: 1.4),
+                      ),
+                      const SizedBox(height: 14),
+                      _CalibrationSlider(
+                        title: 'Heading correction',
+                        value: calibration.headingOffsetDegrees,
+                        min: -30,
+                        max: 30,
+                        onChanged: ref
+                            .read(orientationCalibrationProvider.notifier)
+                            .setHeadingOffset,
+                        onChangeEnd: (_) => ref
+                            .read(orientationCalibrationProvider.notifier)
+                            .save(),
+                      ),
+                      const SizedBox(height: 8),
+                      _CalibrationSlider(
+                        title: 'Tilt correction',
+                        value: calibration.pitchOffsetDegrees,
+                        min: -15,
+                        max: 15,
+                        onChanged: ref
+                            .read(orientationCalibrationProvider.notifier)
+                            .setPitchOffset,
+                        onChangeEnd: (_) => ref
+                            .read(orientationCalibrationProvider.notifier)
+                            .save(),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: () => ref
+                              .read(orientationCalibrationProvider.notifier)
+                              .reset(),
+                          icon: const Icon(Icons.restart_alt),
+                          label: const Text('Reset alignment'),
+                        ),
                       ),
                     ],
                   ),
@@ -306,6 +357,52 @@ class SettingsScreen extends ConsumerWidget {
           DateTime(date.year, date.month, date.day, time.hour, time.minute),
         );
   }
+}
+
+class _CalibrationSlider extends StatelessWidget {
+  const _CalibrationSlider({
+    required this.title,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onChanged,
+    required this.onChangeEnd,
+  });
+
+  final String title;
+  final double value;
+  final double min;
+  final double max;
+  final ValueChanged<double> onChanged;
+  final ValueChanged<double> onChangeEnd;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Expanded(child: Text(title)),
+          Text(
+            '${value >= 0 ? '+' : ''}${value.toStringAsFixed(0)}°',
+            style: const TextStyle(
+              color: skyAccent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+      Slider(
+        value: value.clamp(min, max).toDouble(),
+        min: min,
+        max: max,
+        divisions: (max - min).round(),
+        label: '${value.toStringAsFixed(0)}°',
+        onChanged: onChanged,
+        onChangeEnd: onChangeEnd,
+      ),
+    ],
+  );
 }
 
 class _SettingsCard extends StatelessWidget {
@@ -405,5 +502,5 @@ String _sensorStatus(DeviceOrientation value) {
       : value.northReference == NorthReference.magneticNorth
       ? 'magnetic north'
       : 'unknown north reference';
-  return '${value.quality.name} confidence · $north';
+  return 'Sensors: ${value.quality.name} · $north';
 }

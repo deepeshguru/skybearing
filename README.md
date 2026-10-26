@@ -9,14 +9,23 @@ It has no backend, login, online astronomy service, or runtime catalog download.
 
 - GPS or manually entered observer coordinates, including elevation
 - Live and past/future observation time selection
-- Interactive sky map with horizon grid, constellation stick figures and names,
-  stars, deep-sky targets, Solar System objects, and the Milky Way band
+- Interactive sky map with pinch and press-and-hold zoom, horizon grid,
+  constellation stick figures and names, stars, deep-sky targets, Solar System
+  objects, and the Milky Way band
 - Offline search by object name, catalog identifier, and bundled aliases
 - Object details with calculated azimuth/altitude, equatorial coordinates,
   available catalog measurements, and Solar System rise/set times
-- 3D phone pointing guide with sensor confidence and horizon warnings
-- Camera preview overlay with user-adjustable approximate field of view
+- 3D phone pointing guide with adjustable heading and tilt alignment
+- Camera preview overlay with pinch zoom and user-adjustable approximate field
+  of view
 - On-device favorites and location/time preferences
+
+## Android release APK
+
+The signed APK at `artifacts/skybearing-release.apk` was rebuilt from the
+checked-in Flutter source on 2026-10-26. It supports Android 7.0 (API 24) and
+later, targets API 36, and includes ARM 32-bit, ARM 64-bit, and x86_64 native
+libraries. Device sensor and camera behavior still depends on the hardware.
 
 ## Run
 
@@ -30,9 +39,8 @@ flutter run
 
 For Android, enable USB debugging on a device or start an emulator. For iOS,
 use macOS with compatible full Xcode installed. Flutter uses Swift Package
-Manager where the installed Xcode supports it; CocoaPods 1.17.0 is also
-installed on the development machine. iOS compilation remains unverified here
-because the machine currently has only Xcode Command Line Tools.
+Manager where the installed Xcode supports it. An iOS build was not run in this
+Windows session.
 
 ## Build and checks
 

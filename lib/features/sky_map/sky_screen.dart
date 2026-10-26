@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -26,8 +27,8 @@ class _SkyScreenState extends ConsumerState<SkyScreen> {
   double _centerAzimuth = 180;
   double _centerAltitude = 35;
   double _fieldOfView = 75;
-  double _startFov = 75;
   Offset? _lastPanPoint;
+  int _lastPanPointerCount = 0;
   bool _deviceFollow = false;
 
   @override
@@ -147,10 +148,19 @@ class _SkyScreenState extends ConsumerState<SkyScreen> {
                         onToggleFollow: () =>
                             setState(() => _deviceFollow = !_deviceFollow),
                         onScaleStart: (details) {
-                          _startFov = _fieldOfView;
                           _lastPanPoint = details.focalPoint;
+                          _lastPanPointerCount = details.pointerCount;
                         },
                         onScaleUpdate: (details, size) {
+                          if (details.pointerCount != _lastPanPointerCount) {
+                            _lastPanPointerCount = details.pointerCount;
+                            _lastPanPoint = details.focalPoint;
+                            return;
+                          }
+                          if (details.pointerCount > 1) {
+                            _lastPanPoint = details.focalPoint;
+                            return;
+                          }
                           if (_deviceFollow &&
                               orientation?.isAvailable == true) {
                             return;
@@ -161,10 +171,6 @@ class _SkyScreenState extends ConsumerState<SkyScreen> {
                               : details.focalPoint - last;
                           _lastPanPoint = details.focalPoint;
                           setState(() {
-                            _fieldOfView = (_startFov / details.scale).clamp(
-                              32.0,
-                              150.0,
-                            );
                             _centerAzimuth = normalizeAzimuth(
                               _centerAzimuth -
                                   delta.dx * _fieldOfView / size.width,
@@ -175,6 +181,8 @@ class _SkyScreenState extends ConsumerState<SkyScreen> {
                                     .clamp(-20.0, 90.0);
                           });
                         },
+                        onPinchZoom: (fieldOfView) =>
+                            setState(() => _fieldOfView = fieldOfView),
                         onZoom: (factor) => setState(
                           () => _fieldOfView = (_fieldOfView * factor).clamp(
                             32.0,
@@ -219,7 +227,7 @@ class _SkyScreenState extends ConsumerState<SkyScreen> {
                       const SizedBox(width: 7),
                       Expanded(
                         child: Text(
-                          'Drag to explore · pinch to zoom · tap an object',
+                          'Drag to explore · pinch or hold +/− to zoom · tap an object',
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: const Color(0xFF9AA8BD)),
                         ),
@@ -290,6 +298,7 @@ class _InteractiveSkyMap extends StatefulWidget {
     required this.onToggleFollow,
     required this.onScaleStart,
     required this.onScaleUpdate,
+    required this.onPinchZoom,
     required this.onZoom,
     required this.onTap,
   });
@@ -301,6 +310,7 @@ class _InteractiveSkyMap extends StatefulWidget {
   final VoidCallback onToggleFollow;
   final GestureScaleStartCallback onScaleStart;
   final void Function(ScaleUpdateDetails details, Size size) onScaleUpdate;
+  final ValueChanged<double> onPinchZoom;
   final void Function(double factor) onZoom;
   final void Function(CelestialTarget target) onTap;
 
@@ -309,112 +319,177 @@ class _InteractiveSkyMap extends StatefulWidget {
 }
 
 class _InteractiveSkyMapState extends State<_InteractiveSkyMap> {
+  // Raw pointer tracking keeps pinch zoom responsive when the page's vertical
+  // scroll gesture competes with Flutter's scale recognizer.
+  final Map<int, Offset> _pointerPositions = {};
   Size? _size;
+  double? _pinchStartDistance;
+  double _pinchStartFieldOfView = 75;
+
+  void _onPointerDown(PointerDownEvent event) {
+    _pointerPositions[event.pointer] = event.localPosition;
+    if (_pointerPositions.length >= 2) _beginPinch();
+  }
+
+  void _onPointerMove(PointerMoveEvent event) {
+    if (!_pointerPositions.containsKey(event.pointer)) return;
+    _pointerPositions[event.pointer] = event.localPosition;
+    if (_pointerPositions.length < 2) return;
+
+    final distance = _pinchDistance();
+    final startDistance = _pinchStartDistance;
+    if (startDistance == null || startDistance <= 0 || distance <= 0) {
+      _beginPinch();
+      return;
+    }
+    final pinchScale = distance / startDistance;
+    final startHalfAngle = _pinchStartFieldOfView * math.pi / 360;
+    final fieldOfView = (2 *
+            math.atan(math.tan(startHalfAngle) / pinchScale) *
+            180 /
+            math.pi)
+        .clamp(32.0, 150.0)
+        .toDouble();
+    if ((fieldOfView - widget.fieldOfView).abs() > .02) {
+      widget.onPinchZoom(fieldOfView);
+    }
+  }
+
+  void _onPointerEnd(PointerEvent event) {
+    _pointerPositions.remove(event.pointer);
+    if (_pointerPositions.length >= 2) {
+      _beginPinch();
+    } else {
+      _pinchStartDistance = null;
+    }
+  }
+
+  void _beginPinch() {
+    _pinchStartDistance = _pinchDistance();
+    _pinchStartFieldOfView = widget.fieldOfView;
+  }
+
+  double _pinchDistance() {
+    final points = _pointerPositions.values.take(2).toList(growable: false);
+    if (points.length < 2) return 0;
+    return (points[0] - points[1]).distance;
+  }
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       _size = Size(constraints.maxWidth, constraints.maxHeight);
-      final compactControls = constraints.maxWidth < 164;
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment(-.15, -.2),
-              radius: 1.1,
-              colors: [Color(0xFF17243A), Color(0xFF080D18)],
+      final compactControls = constraints.maxWidth < 204;
+      return Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: _onPointerDown,
+        onPointerMove: _onPointerMove,
+        onPointerUp: _onPointerEnd,
+        onPointerCancel: _onPointerEnd,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(26),
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(-.15, -.2),
+                radius: 1.1,
+                colors: [Color(0xFF17243A), Color(0xFF080D18)],
+              ),
             ),
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Semantics(
-                container: true,
-                label: 'Interactive sky map. Drag to explore, pinch to zoom, and tap a visible object for details.',
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onScaleStart: widget.onScaleStart,
-                  onScaleUpdate: (details) =>
-                      widget.onScaleUpdate(details, _size!),
-                  onTapUp: (details) => _selectAt(details.localPosition),
-                  child: CustomPaint(
-                    painter: _SkyMapPainter(
-                      snapshot: widget.snapshot,
-                      projection: SkyProjection(
-                        centerAzimuthDegrees: widget.centerAzimuth,
-                        centerAltitudeDegrees: widget.centerAltitude,
-                        fieldOfViewDegrees: widget.fieldOfView,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Semantics(
+                  container: true,
+                  label: 'Interactive sky map. Drag to explore, pinch to zoom, and tap a visible object for details.',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onScaleStart: widget.onScaleStart,
+                    onScaleUpdate: (details) =>
+                        widget.onScaleUpdate(details, _size!),
+                    onTapUp: (details) => _selectAt(details.localPosition),
+                    child: CustomPaint(
+                      painter: _SkyMapPainter(
+                        snapshot: widget.snapshot,
+                        projection: SkyProjection(
+                          centerAzimuthDegrees: widget.centerAzimuth,
+                          centerAltitudeDegrees: widget.centerAltitude,
+                          fieldOfViewDegrees: widget.fieldOfView,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 12,
-                top: 12,
-                child: _MapControl(
-                  icon: Icons.zoom_out,
-                  tooltip: 'Zoom out',
-                  onPressed: () => widget.onZoom(1.15),
-                ),
-              ),
-              Positioned(
-                left: compactControls ? 12 : 64,
-                top: compactControls ? 64 : 12,
-                child: _MapControl(
-                  icon: Icons.zoom_in,
-                  tooltip: 'Zoom in',
-                  onPressed: () => widget.onZoom(.87),
-                ),
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: _MapControl(
-                  icon: widget.followingDevice
-                      ? Icons.explore
-                      : Icons.explore_outlined,
-                  active: widget.followingDevice,
-                  onPressed: widget.onToggleFollow,
-                  tooltip: 'Follow phone orientation',
-                  size: 48,
-                ),
-              ),
-              Positioned(
-                left: 14,
-                bottom: 13,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 7,
+                Positioned(
+                  left: 12,
+                  top: 12,
+                  child: _ZoomControl(
+                    icon: Icons.zoom_out,
+                    tooltip: 'Zoom out',
+                    enabled: widget.fieldOfView < 150,
+                    onTap: () => widget.onZoom(1.25),
+                    onHold: () => widget.onZoom(1.04),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: .55),
-                    borderRadius: BorderRadius.circular(20),
+                ),
+                Positioned(
+                  left: compactControls ? 12 : 72,
+                  top: compactControls ? 72 : 12,
+                  child: _ZoomControl(
+                    icon: Icons.zoom_in,
+                    tooltip: 'Zoom in',
+                    enabled: widget.fieldOfView > 32,
+                    onTap: () => widget.onZoom(.8),
+                    onHold: () => widget.onZoom(.96),
                   ),
-                  child: Text(
-                    '${widget.fieldOfView.round()}° field · geometric sky',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Color(0xFFB2C0D4),
+                ),
+                Positioned(
+                  right: 12,
+                  top: 12,
+                  child: _MapControl(
+                    icon: widget.followingDevice
+                        ? Icons.explore
+                        : Icons.explore_outlined,
+                    active: widget.followingDevice,
+                    onPressed: widget.onToggleFollow,
+                    tooltip: 'Follow phone orientation',
+                    size: 48,
+                  ),
+                ),
+                Positioned(
+                  left: 14,
+                  bottom: 13,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: .55),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${widget.fieldOfView.round()}° field · geometric sky',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFFB2C0D4),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const Positioned(
-                right: 17,
-                bottom: 14,
-                child: Text(
-                  'N',
-                  style: TextStyle(
-                    color: Color(0xFFAFBED3),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11,
+                const Positioned(
+                  right: 17,
+                  bottom: 14,
+                  child: Text(
+                    'N',
+                    style: TextStyle(
+                      color: Color(0xFFAFBED3),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -945,12 +1020,14 @@ class _MapControl extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.active = false,
+    this.enabled = true,
     this.tooltip,
     this.size = 48,
   });
   final IconData icon;
   final VoidCallback onPressed;
   final bool active;
+  final bool enabled;
   final String? tooltip;
   final double size;
 
@@ -958,21 +1035,104 @@ class _MapControl extends StatelessWidget {
   Widget build(BuildContext context) => Material(
     color: active
         ? skyAccent.withValues(alpha: .9)
-        : Colors.black.withValues(alpha: .48),
+        : Colors.black.withValues(alpha: enabled ? .48 : .25),
     borderRadius: BorderRadius.circular(13),
     child: IconButton(
-      onPressed: onPressed,
+      onPressed: enabled ? onPressed : null,
       tooltip: tooltip,
       icon: Semantics(
         label: tooltip,
         child: Icon(
           icon,
           size: 19,
-          color: active ? const Color(0xFF07111D) : const Color(0xFFDCE6F5),
+          color: active
+              ? const Color(0xFF07111D)
+              : enabled
+              ? const Color(0xFFDCE6F5)
+              : const Color(0xFF718097),
         ),
       ),
       constraints: BoxConstraints.tightFor(width: size, height: size),
       padding: EdgeInsets.zero,
+    ),
+  );
+}
+
+class _ZoomControl extends StatefulWidget {
+  const _ZoomControl({
+    required this.icon,
+    required this.tooltip,
+    required this.enabled,
+    required this.onTap,
+    required this.onHold,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final bool enabled;
+  final VoidCallback onTap;
+  final VoidCallback onHold;
+
+  @override
+  State<_ZoomControl> createState() => _ZoomControlState();
+}
+
+class _ZoomControlState extends State<_ZoomControl> {
+  Timer? _holdDelay;
+  Timer? _repeatTimer;
+  bool _didRepeat = false;
+
+  void _onPointerDown(PointerDownEvent _) {
+    _cancelTimers();
+    _didRepeat = false;
+    if (!widget.enabled) return;
+    _holdDelay = Timer(const Duration(milliseconds: 350), () {
+      if (!mounted || !widget.enabled) return;
+      _didRepeat = true;
+      widget.onHold();
+      _repeatTimer = Timer.periodic(const Duration(milliseconds: 90), (_) {
+        if (!mounted || !widget.enabled) {
+          _cancelTimers();
+          return;
+        }
+        widget.onHold();
+      });
+    });
+  }
+
+  void _onPointerEnd(PointerEvent _) => _cancelTimers();
+
+  void _cancelTimers() {
+    _holdDelay?.cancel();
+    _repeatTimer?.cancel();
+    _holdDelay = null;
+    _repeatTimer = null;
+  }
+
+  void _onTap() {
+    if (_didRepeat) {
+      _didRepeat = false;
+      return;
+    }
+    if (widget.enabled) widget.onTap();
+  }
+
+  @override
+  void dispose() {
+    _cancelTimers();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    onPointerDown: _onPointerDown,
+    onPointerUp: _onPointerEnd,
+    onPointerCancel: _onPointerEnd,
+    child: _MapControl(
+      icon: widget.icon,
+      tooltip: widget.tooltip,
+      onPressed: _onTap,
+      enabled: widget.enabled,
     ),
   );
 }

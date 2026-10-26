@@ -5,16 +5,12 @@
 - Flutter stable 3.47.7, Dart 3.13.5
 - Android SDK platform 36 and build-tools 36.0.0
 - Android NDK 28.2.13676358
-- OpenJDK 21.0.11
-- Xcode: unavailable; only Command Line Tools are installed
-- CocoaPods 1.17.0 is installed. Flutter's Swift Package Manager integration is
-  enabled by default on supported Xcode installations, but it is not active in
-  this environment because full Xcode is absent. Rerun `flutter pub get` after
-  installing Xcode and verify which dependency manager Flutter selects.
+- Eclipse Temurin JDK 21.0.12.1
+- Windows 11 build host
 
-The Flutter SDK used in this workspace is at
-`/Users/deepesh.agrawal/development/flutter`. Android SDK root is
-`/opt/homebrew/share/android-commandlinetools`.
+On this Windows host, Flutter is installed under
+`%LOCALAPPDATA%\OfflineSkyBuild\flutter` and the Android SDK under
+`%LOCALAPPDATA%\OfflineSkyBuild\android-sdk`.
 
 ## Android
 
@@ -47,24 +43,42 @@ debugging. The release APK was inspected with `aapt dump permissions`; it has
 no `INTERNET`, `ACCESS_NETWORK_STATE`, `RECORD_AUDIO`, or storage permission.
 It includes coarse/fine location, camera, and Android's signature-level
 dynamic-receiver permission. Its core application flow was launched on the
-API 36 emulator with Wi-Fi and mobile data disabled.
+API 36 emulator in the previous handoff with Wi-Fi and mobile data disabled.
 
-Release signing is not configured. `android/app/build.gradle.kts` retains the
-Flutter template's debug signing configuration for local release runs; replace
-it with an owner-managed signing configuration before publishing. No signing
-keys are included in this project.
+Use the normal `flutter build apk --release` command after dependency changes.
+It regenerates the release plugin registrant without dev-only plugins such as
+`integration_test`; `--no-pub` can leave a registrant that references a plugin
+which is absent from the release classpath.
 
-The locally built release APK is optimized but is not a store-signed release.
-Before publication, configure owner-managed signing, build and verify an AAB,
-and complete store-policy/privacy review.
+The checked-in `artifacts/skybearing-release.apk` is version 0.1.1 (version
+code 2), with minimum API 24 and target API 36. It contains `armeabi-v7a`,
+`arm64-v8a`, and `x86_64` native libraries. Android `apksigner` verifies its
+v2 signature. The APK passes `zipalign -c -P 16 4`. Its size is 58,900,961
+bytes and its SHA-256 is
+`f734b998ad9f624c6345e4e4b771793581de7797a9d4e698c4ea8cf4791ee098`.
+
+The APK was rebuilt from the checked-in app source on 2026-10-26 with Flutter
+3.47.7, Dart 3.13.5, Android SDK 36, NDK 28.2.13676358, and JDK 21.0.12.1. It
+is signed with a dedicated 4096-bit RSA key. Its signer SHA-256 fingerprint is
+`b1fa3f7ca44e92012a96a5265147d061410588819827ae0125bef978f646b209`.
+
+`android/app/build.gradle.kts` reads release signing values from
+`~/.config/offline-sky/android-signing.properties` or the documented
+`OFFLINE_SKY_UPLOAD_*` environment variables. The keystore and properties file
+are outside this repository, under `%USERPROFILE%\.config\offline-sky` on
+this Windows machine. Keep an encrypted backup of `offline-sky-upload.jks` and
+use this same key for every update. An APK installed with a different signing
+certificate cannot update to this release; uninstall it first.
+
+This is a locally signed APK for direct installation. Before Google Play
+publication, build and verify an Android App Bundle with the intended Play App
+Signing setup and review the current store and privacy requirements.
 
 ## iOS
 
 The iOS deployment target is 15.0. Camera and location usage descriptions are
 in `ios/Runner/Info.plist`; sensor channels are in `ios/Runner/AppDelegate.swift`.
-The generated Xcode project supports Flutter's Swift Package Manager plugin
-integration. Flutter only enables it when a compatible full Xcode installation
-is available. CocoaPods 1.17.0 is installed as a fallback. On this machine:
+Build iOS on macOS with full Xcode installed:
 
 ```bash
 flutter doctor -v
@@ -72,22 +86,16 @@ flutter pub get
 flutter build ios --no-codesign
 ```
 
-The current environment does not contain `/Applications/Xcode.app` or the iOS
-SDKs. `flutter build ios --no-codesign` was attempted but Flutter could not
-resolve an iOS build target because `xcodebuild` is unavailable; only Swift
-syntax parsing of `AppDelegate.swift` passed. No iOS compilation or simulator
-validation is claimed. Once Xcode is installed, run `flutter pub get` again,
-then build and test. Distribution signing and App Store packaging require the
-owner's Apple developer configuration.
+No iOS build was performed in the current Windows session. Distribution signing
+and App Store packaging require the owner's Apple developer configuration.
 
-## Flutter SDK on this workspace
+## Windows toolchain locations
 
-Flutter's `bin` directory is now added to `~/.zprofile`. Open a new terminal
-session to pick it up. The installed path can also be used explicitly:
+The installed Flutter and Android SDK paths can be used explicitly:
 
-```bash
-/Users/deepesh.agrawal/development/flutter/bin/flutter doctor -v
-/Users/deepesh.agrawal/development/flutter/bin/flutter build apk --debug
+```powershell
+& "$env:LOCALAPPDATA\OfflineSkyBuild\flutter\bin\flutter.bat" doctor -v
+& "$env:LOCALAPPDATA\OfflineSkyBuild\flutter\bin\flutter.bat" build apk --release
 ```
 
 The app has no Android emulator definition committed to the repository. The

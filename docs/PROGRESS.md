@@ -1,6 +1,7 @@
 # Implementation progress
 
-Updated 2026-10-16. This is the verified handoff state for the workspace.
+Updated 2026-10-26. The historical test results below are from the previous
+handoff; a fresh Android release build and APK validation were completed today.
 
 ## Implemented
 
@@ -20,11 +21,10 @@ Updated 2026-10-16. This is the verified handoff state for the workspace.
   concurrent CameraX initialization. The retry-safe lifecycle now prevents
   duplicate starts.
 
-## Verified results
+## Previously verified results
 
-- Environment: Flutter 3.47.7, Dart 3.13.5, Android SDK 36/build-tools 36.0.0,
-  NDK 28.2.13676358, OpenJDK 21.0.11, CocoaPods 1.17.0 and mas 7.0.0 on Apple
-  Silicon macOS. Flutter's SDK path is now added to `~/.zprofile`.
+- The prior handoff used Flutter 3.47.7, Dart 3.13.5, Android SDK 36/build-tools
+  36.0.0, NDK 28.2.13676358, and OpenJDK 21.0.11 on Apple Silicon macOS.
 - `flutter analyze`: passed with no issues.
 - `flutter test`: 12 tests passed.
 - `packages/astro_engine` `dart test -r expanded`: 14 tests passed, including
@@ -64,8 +64,30 @@ Updated 2026-10-16. This is the verified handoff state for the workspace.
   untested. No physical mobile device is attached.
 - Performance measurements (frame rate, CPU, memory, startup, battery) were
   not collected.
-- The release APK uses the Flutter template's debug signing configuration for
-  local installation. Add owner-managed signing, validate an AAB, and complete
-  store policy/privacy review before distribution.
+- The production signing key is stored outside the repository under
+  `%USERPROFILE%\.config\offline-sky`. Back it up securely and retain it for
+  future updates. The APK is locally signed for direct installation; validate
+  an AAB with the intended Play App Signing setup before store publication.
 - Astronomy coverage is bounded as described in `LIMITATIONS.md`; the catalog
   is selected and pinned rather than complete or remotely updated.
+
+## Current Android release rebuild (2026-10-26)
+
+- `flutter build apk --release` completed from the checked-in source with
+  Flutter 3.47.7, Dart 3.13.5, Android SDK 36, NDK 28.2.13676358, and JDK
+  21.0.12.1. Dependency resolution did not modify `pubspec.lock`.
+- The source build produced `artifacts/skybearing-release.apk`, version 0.1.1
+  (version code 2), 58,900,961 bytes, SHA-256
+  `f734b998ad9f624c6345e4e4b771793581de7797a9d4e698c4ea8cf4791ee098`.
+  It targets API 36, supports API 24+, and includes `armeabi-v7a`, `arm64-v8a`,
+  and `x86_64`.
+- `apksigner verify` passed with APK Signature Scheme v2 and the retained
+  4096-bit release key (signer SHA-256
+  `b1fa3f7ca44e92012a96a5265147d061410588819827ae0125bef978f646b209`).
+  `zipalign -c -P 16 4` passed. The package contains location and camera
+  permissions, no network, audio, or storage permissions.
+- `flutter analyze lib test/app_navigation_test.dart` passed with no issues.
+- The build emitted non-fatal C initializer and Java compatibility/deprecation
+  warnings. Automated tests and emulator/device checks were not rerun in this
+  Windows session; the earlier API 36 emulator run is historical. Physical
+  device performance and sensor/camera accuracy remain unmeasured.

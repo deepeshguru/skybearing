@@ -7,6 +7,7 @@ import '../core/database/catalog_repository.dart';
 import '../core/location/location_service.dart';
 import '../core/location/observer_location_store.dart';
 import '../core/models/device_orientation.dart';
+import '../core/models/orientation_calibration.dart';
 import '../core/models/observer_location.dart';
 import '../core/sensors/orientation_service.dart';
 
@@ -32,9 +33,74 @@ final observerLocationStoreProvider = Provider<ObserverLocationStore>(
   (ref) => FileObserverLocationStore.platform(),
 );
 
-final orientationProvider = StreamProvider.autoDispose<DeviceOrientation>(
-  (ref) => OrientationService.watch(),
-);
+final orientationCalibrationProvider =
+    NotifierProvider<OrientationCalibrationController, OrientationCalibration>(
+      OrientationCalibrationController.new,
+    );
+
+final orientationProvider = StreamProvider.autoDispose<DeviceOrientation>((
+  ref,
+) {
+  return OrientationService.watch().map(
+    (orientation) =>
+        ref.read(orientationCalibrationProvider).apply(orientation),
+  );
+});
+
+class OrientationCalibrationController
+    extends Notifier<OrientationCalibration> {
+  static const _headingKey = 'orientation_heading_offset_degrees';
+  static const _pitchKey = 'orientation_pitch_offset_degrees';
+
+  int _revision = 0;
+
+  @override
+  OrientationCalibration build() {
+    unawaited(_restore());
+    return const OrientationCalibration();
+  }
+
+  Future<void> _restore() async {
+    final revision = _revision;
+    final preferences = await SharedPreferences.getInstance();
+    if (revision != _revision) return;
+    final heading = preferences.getDouble(_headingKey) ?? 0;
+    final pitch = preferences.getDouble(_pitchKey) ?? 0;
+    state = OrientationCalibration(
+      headingOffsetDegrees: heading.isFinite
+          ? heading.clamp(-30, 30).toDouble()
+          : 0,
+      pitchOffsetDegrees: pitch.isFinite ? pitch.clamp(-15, 15).toDouble() : 0,
+    );
+  }
+
+  void setHeadingOffset(double degrees) {
+    _revision++;
+    state = state.copyWith(
+      headingOffsetDegrees: degrees.clamp(-30, 30).toDouble(),
+    );
+  }
+
+  void setPitchOffset(double degrees) {
+    _revision++;
+    state = state.copyWith(
+      pitchOffsetDegrees: degrees.clamp(-15, 15).toDouble(),
+    );
+  }
+
+  Future<void> save() async {
+    final calibration = state;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setDouble(_headingKey, calibration.headingOffsetDegrees);
+    await preferences.setDouble(_pitchKey, calibration.pitchOffsetDegrees);
+  }
+
+  Future<void> reset() async {
+    _revision++;
+    state = const OrientationCalibration();
+    await save();
+  }
+}
 
 final skyStateProvider = NotifierProvider<SkyController, SkyState>(
   SkyController.new,

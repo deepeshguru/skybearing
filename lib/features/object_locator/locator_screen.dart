@@ -9,6 +9,7 @@ import '../../core/astronomy/sky_snapshot.dart';
 import '../../core/math/sky_math.dart';
 import '../../core/models/celestial_target.dart';
 import '../../core/models/device_orientation.dart';
+import '../../core/models/observer_location.dart';
 import '../../shared/sky_format.dart';
 
 class LocatorScreen extends ConsumerWidget {
@@ -90,6 +91,12 @@ class LocatorScreen extends ConsumerWidget {
                             '${compassDirection(azimuth)}  ${azimuth.toStringAsFixed(1)}°  ·  Alt ${formatAngle(altitude, signed: true)}',
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: const Color(0xFF9FAEC4)),
+                          ),
+                          Text(
+                            _observerLocationLabel(sky.location),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: const Color(0xFF7889A3)),
+                            textAlign: TextAlign.center,
                           ),
                           SizedBox(
                             height: constraints.maxHeight < 480 ? 12 : 23,
@@ -362,7 +369,7 @@ class _SensorQuality extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final quality = switch (orientation.quality) {
-      OrientationQuality.high => 'Good sensor confidence',
+      OrientationQuality.high => 'Sensor status: high',
       OrientationQuality.medium => 'Moderate sensor confidence',
       OrientationQuality.low => 'Low sensor confidence · calibrate by moving the phone in a figure eight',
       OrientationQuality.unavailable => 'Sensor confidence unavailable',
@@ -411,6 +418,20 @@ class _SensorQuality extends StatelessWidget {
       ),
     );
   }
+}
+
+String _observerLocationLabel(ObserverLocation location) {
+  final latitude = location.latitudeDegrees;
+  final longitude = location.longitudeDegrees;
+  final latitudeHemisphere = latitude < 0 ? 'S' : 'N';
+  final longitudeHemisphere = longitude < 0 ? 'W' : 'E';
+  final source = switch (location.source) {
+    LocationSource.gps => 'GPS',
+    LocationSource.manual => 'manual',
+    LocationSource.saved => 'saved',
+  };
+  return 'Observer $source · ${latitude.abs().toStringAsFixed(4)}°$latitudeHemisphere, '
+      '${longitude.abs().toStringAsFixed(4)}°$longitudeHemisphere';
 }
 
 String _directionInstruction(ObjectAlignment alignment) {
