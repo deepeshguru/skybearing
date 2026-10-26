@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/offline_sky_app.dart';
 import '../../app/providers.dart';
 import '../../core/models/device_orientation.dart';
 import '../../shared/location_editor.dart';
 import '../../shared/sky_format.dart';
+
+const _privacyPolicyUrl =
+    'https://github.com/deepeshguru/skybearing/blob/main/docs/PRIVACY_POLICY.md';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -282,7 +286,7 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const _SettingsCard(
+                _SettingsCard(
                   title: 'Offline data & privacy',
                   icon: Icons.wifi_off,
                   subtitle: 'Astronomy calculations and catalogs are bundled on this device.',
@@ -317,6 +321,15 @@ class SettingsScreen extends ConsumerWidget {
                           fontSize: 12,
                           color: Color(0xFF93A2B8),
                           height: 1.4,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: () => _openPrivacyPolicy(context),
+                          icon: Icon(Icons.open_in_new),
+                          label: Text('Read the privacy policy'),
                         ),
                       ),
                     ],
@@ -356,6 +369,18 @@ class SettingsScreen extends ConsumerWidget {
         .setSelectedTime(
           DateTime(date.year, date.month, date.day, time.hour, time.minute),
         );
+  }
+}
+
+Future<void> _openPrivacyPolicy(BuildContext context) async {
+  final opened = await launchUrl(
+    Uri.parse(_privacyPolicyUrl),
+    mode: LaunchMode.externalApplication,
+  );
+  if (!opened && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open the privacy policy.')),
+    );
   }
 }
 

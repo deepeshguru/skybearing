@@ -22,6 +22,7 @@ flutter analyze
 flutter test
 flutter build apk --debug
 flutter build apk --release
+flutter build appbundle --release
 ```
 
 Install on a connected device or running emulator:
@@ -70,9 +71,13 @@ this Windows machine. Keep an encrypted backup of `offline-sky-upload.jks` and
 use this same key for every update. An APK installed with a different signing
 certificate cannot update to this release; uninstall it first.
 
-This is a locally signed APK for direct installation. Before Google Play
-publication, build and verify an Android App Bundle with the intended Play App
-Signing setup and review the current store and privacy requirements.
+The APK is locally signed for direct installation. The signed Play upload
+bundle is `artifacts/google-play/offline-sky-release.aab` (version 0.1.2, code
+3; 58,952,746 bytes), built from the updated source on 2026-10-26 and verified
+with `jarsigner`. Enroll in Play App Signing and keep the existing upload
+keystore and passwords backed up outside the repository for all future builds.
+Review the store listing and policy materials in `docs/GOOGLE_PLAY_RELEASE.md`
+and `docs/PRIVACY_POLICY.md` before submitting.
 
 ## iOS
 
