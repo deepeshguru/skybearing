@@ -24,10 +24,10 @@ download.
 
 ## Google Play Android App Bundle
 
-Rebuild the signed Play release bundle after app changes with
-`flutter build appbundle --release`. Save the fresh bundle as
-`artifacts/google-play/sky-atlas-offline-release.aab` before uploading it. The
-previous bundle predates the app-name change and should not be uploaded.
+The signed Google Play bundle is
+`artifacts/google-play/sky-atlas-offline-release.aab`. It was built from the
+current source on 2026-10-26 for Android 7.0 (API 24) and later, targeting API
+36. Rebuild it after future app changes with `flutter build appbundle --release`.
 
 ## Run
 

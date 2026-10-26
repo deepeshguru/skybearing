@@ -75,10 +75,8 @@ Suggested screenshot alt text:
 - Minimum supported Android version: API 24
 - Target API: 36
 - Current app version: `0.1.2+3`
-- **Signed upload bundle:** Rebuild with the updated app name before uploading.
-  The existing `offline-sky-release.aab` has the old launcher label and must not
-  be used. Build with `flutter build appbundle --release`, then save the new
-  bundle as `artifacts/google-play/sky-atlas-offline-release.aab`.
+- **Signed upload bundle:** `artifacts/google-play/sky-atlas-offline-release.aab`
+  (56.2 MiB, built October 26, 2026 with the Sky Atlas Offline launcher label).
 - Enroll in Play App Signing and upload that bundle.
 - Keep the existing upload keystore and passwords backed up securely outside
   the repository. Do not regenerate the upload key for updates.

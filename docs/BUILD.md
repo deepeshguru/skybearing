@@ -71,13 +71,12 @@ this Windows machine. Keep an encrypted backup of `offline-sky-upload.jks` and
 use this same key for every update. An APK installed with a different signing
 certificate cannot update to this release; uninstall it first.
 
-The APK is locally signed for direct installation. The previously generated
-Play upload bundle at `artifacts/google-play/offline-sky-release.aab` predates
-the app-name change and still has the old launcher label. Rebuild it from the
-current source with `flutter build appbundle --release` before upload. Save the
-new bundle as `artifacts/google-play/sky-atlas-offline-release.aab`. Enroll in
-Play App Signing and keep the existing upload keystore and passwords backed up
-outside the repository for all future builds.
+The APK is locally signed for direct installation. The current signed Play
+upload bundle is `artifacts/google-play/sky-atlas-offline-release.aab` (version
+0.1.2, code 3; 58,952,799 bytes), built from the renamed source on 2026-10-26
+and verified with `jarsigner`. Its application label is **Sky Atlas Offline**.
+Enroll in Play App Signing and keep the existing upload keystore and passwords
+backed up outside the repository for all future builds.
 Review the store listing and policy materials in `docs/GOOGLE_PLAY_RELEASE.md`
 and `docs/PRIVACY_POLICY.md` before submitting.
 
