@@ -51,12 +51,13 @@ It regenerates the release plugin registrant without dev-only plugins such as
 `integration_test`; `--no-pub` can leave a registrant that references a plugin
 which is absent from the release classpath.
 
-The checked-in `artifacts/skybearing-release.apk` is version 0.1.2 (version
+The signed direct-install APK is
+`artifacts/google-play/sky-atlas-offline-release.apk`, version 0.1.2 (version
 code 3), with minimum API 24 and target API 36. It contains `armeabi-v7a`,
 `arm64-v8a`, and `x86_64` native libraries. Android `apksigner` verifies its
-v2 signature. The APK passes `zipalign -c -P 16 4`. Its size is 58,999,289
+v2 signature, and it passes `zipalign -c -P 16 4`. Its size is 59,441,216
 bytes and its SHA-256 is
-`f2a9f253943f35d05bd5eeed9c985646d489da6ef0658a95e001e669c0708cee`.
+`ff91509371970b54bc92e8d909a127275b762c666a2e7f0382e6def082a6d59e`.
 
 The APK was rebuilt from the checked-in app source on 2026-10-26 with Flutter
 3.47.7, Dart 3.13.5, Android SDK 36, NDK 28.2.13676358, and JDK 21.0.12.1. It

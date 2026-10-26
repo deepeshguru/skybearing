@@ -28,6 +28,8 @@ The signed Google Play bundle is
 `artifacts/google-play/sky-atlas-offline-release.aab`. It was built from the
 current source on 2026-10-26 for Android 7.0 (API 24) and later, targeting API
 36. Rebuild it after future app changes with `flutter build appbundle --release`.
+For direct installation, the signed APK is
+`artifacts/google-play/sky-atlas-offline-release.apk`; upload the AAB to Play.
 
 ## Run
 

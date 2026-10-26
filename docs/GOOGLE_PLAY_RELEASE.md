@@ -77,6 +77,8 @@ Suggested screenshot alt text:
 - Current app version: `0.1.2+3`
 - **Signed upload bundle:** `artifacts/google-play/sky-atlas-offline-release.aab`
   (56.2 MiB, built October 26, 2026 with the Sky Atlas Offline launcher label).
+- **Direct-install APK:** `artifacts/google-play/sky-atlas-offline-release.apk`
+  (56.7 MiB; use the AAB for the Google Play upload).
 - Enroll in Play App Signing and upload that bundle.
 - Keep the existing upload keystore and passwords backed up securely outside
   the repository. Do not regenerate the upload key for updates.
