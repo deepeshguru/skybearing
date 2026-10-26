@@ -43,7 +43,7 @@ class OfflineSkyApp extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
     );
     return MaterialApp(
-      title: 'Offline Sky',
+      title: 'Sky Atlas Offline',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

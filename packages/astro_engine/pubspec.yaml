@@ -1,5 +1,5 @@
 name: astro_engine
-description: Native Astronomy Engine C calculations for Offline Sky.
+description: Native Astronomy Engine C calculations for Sky Atlas Offline.
 version: 1.0.0
 publish_to: none
 environment:

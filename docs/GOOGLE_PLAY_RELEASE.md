@@ -1,13 +1,13 @@
-# Offline Sky — Google Play release packet
+# Sky Atlas Offline — Google Play release packet
 
 This file contains the proposed public listing values and console declarations
 for the Android release.
 
 ## Store listing
 
-- **Developer name:** Offline Sky
+- **Developer name:** Sky Atlas Offline
 - **Support email:** deepeshguru786@gmail.com
-- **App name:** Offline Sky
+- **App name:** Sky Atlas Offline
 - **Category:** Education
 - **Price:** Free; no ads or in-app purchases
 - **Privacy policy:** https://github.com/deepeshguru/skybearing/blob/main/docs/PRIVACY_POLICY.md
@@ -15,8 +15,8 @@ for the Android release.
 - **Full description:**
 
   Explore the sky above you with an offline planetarium and astronomy guide.
-  Offline Sky calculates the directions of the Sun, Moon, planets, stars, and
-  deep-sky objects on your device using its bundled sky catalog.
+  Sky Atlas Offline calculates the directions of the Sun, Moon, planets, stars,
+  and deep-sky objects on your device using its bundled sky catalog.
 
   **Explore your sky**
   - Browse an interactive sky map with stars, constellations, the Milky Way, and
@@ -75,8 +75,10 @@ Suggested screenshot alt text:
 - Minimum supported Android version: API 24
 - Target API: 36
 - Current app version: `0.1.2+3`
-- Signed upload bundle: `artifacts/google-play/offline-sky-release.aab` (56.2 MiB,
-  built October 26, 2026).
+- **Signed upload bundle:** Rebuild with the updated app name before uploading.
+  The existing `offline-sky-release.aab` has the old launcher label and must not
+  be used. Build with `flutter build appbundle --release`, then save the new
+  bundle as `artifacts/google-play/sky-atlas-offline-release.aab`.
 - Enroll in Play App Signing and upload that bundle.
 - Keep the existing upload keystore and passwords backed up securely outside
   the repository. Do not regenerate the upload key for updates.

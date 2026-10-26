@@ -1,10 +1,10 @@
-# Offline Sky Privacy Policy
+# Sky Atlas Offline Privacy Policy
 
 **Last updated: October 26, 2026**
 
-Offline Sky is a free, offline astronomy guide published under the developer
-name **Offline Sky**. This policy explains what the Android app accesses and
-stores.
+Sky Atlas Offline is a free, offline astronomy guide published under the
+developer name **Sky Atlas Offline**. This policy explains what the Android app
+accesses and stores.
 
 ## Data used on your device
 
@@ -14,7 +14,7 @@ stores.
   is stored in the app's private files on your device. The app does not send
   those coordinates to the developer or an analytics provider.
 - **Camera:** The optional camera view shows a live preview so the sky guide can
-  be overlaid on the view. Offline Sky does not take or save photographs,
+  be overlaid on the view. Sky Atlas Offline does not take or save photographs,
   record video, or send camera frames anywhere.
 - **Motion sensors:** The optional pointing guide reads device orientation to
   estimate where the phone is aimed. Sensor readings are used on-device and are
@@ -27,15 +27,15 @@ stores.
 
 ## Collection, sharing, and advertising
 
-Offline Sky has no user accounts, backend, ads, analytics, or online astronomy
-service. The app does not transmit location, camera, sensor, or preference data
-to the developer or other companies. It does not request microphone or shared
-storage access.
+Sky Atlas Offline has no user accounts, backend, ads, analytics, or online
+astronomy service. The app does not transmit location, camera, sensor, or
+preference data to the developer or other companies. It does not request
+microphone or shared storage access.
 
 If you tap the privacy-policy link in the app, Android opens this public page in
 your browser. The browser connects to GitHub to load the page; GitHub may process
-standard web request information under its own privacy terms. Offline Sky does
-not receive that browser traffic.
+standard web request information under its own privacy terms. Sky Atlas Offline
+does not receive that browser traffic.
 
 ## Permissions and your choices
 

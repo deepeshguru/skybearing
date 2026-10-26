@@ -1,9 +1,10 @@
-# Offline Sky
+# Sky Atlas Offline
 
-Offline Sky is a Flutter planetarium and sky guide for Android and iPhone. It
-calculates local directions for the Sun, Moon, supported planets, stars, deep
-sky objects, notable black-hole systems, and the Milky Way from bundled data.
-It has no backend, login, online astronomy service, or runtime catalog download.
+Sky Atlas Offline is a Flutter planetarium and sky guide for Android and iPhone.
+It calculates local directions for the Sun, Moon, supported planets, stars,
+deep sky objects, notable black-hole systems, and the Milky Way from bundled
+data. It has no backend, login, online astronomy service, or runtime catalog
+download.
 
 ## Features
 
@@ -21,12 +22,12 @@ It has no backend, login, online astronomy service, or runtime catalog download.
   of view
 - On-device favorites and location/time preferences
 
-## Android release APK
+## Google Play Android App Bundle
 
-The signed APK at `artifacts/skybearing-release.apk` was rebuilt from the
-checked-in Flutter source on 2026-10-26. It supports Android 7.0 (API 24) and
-later, targets API 36, and includes ARM 32-bit, ARM 64-bit, and x86_64 native
-libraries. Device sensor and camera behavior still depends on the hardware.
+Rebuild the signed Play release bundle after app changes with
+`flutter build appbundle --release`. Save the fresh bundle as
+`artifacts/google-play/sky-atlas-offline-release.aab` before uploading it. The
+previous bundle predates the app-name change and should not be uploaded.
 
 ## Run
 
