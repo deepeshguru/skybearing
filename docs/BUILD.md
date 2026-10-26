@@ -50,12 +50,12 @@ It regenerates the release plugin registrant without dev-only plugins such as
 `integration_test`; `--no-pub` can leave a registrant that references a plugin
 which is absent from the release classpath.
 
-The checked-in `artifacts/skybearing-release.apk` is version 0.1.1 (version
-code 2), with minimum API 24 and target API 36. It contains `armeabi-v7a`,
+The checked-in `artifacts/skybearing-release.apk` is version 0.1.2 (version
+code 3), with minimum API 24 and target API 36. It contains `armeabi-v7a`,
 `arm64-v8a`, and `x86_64` native libraries. Android `apksigner` verifies its
-v2 signature. The APK passes `zipalign -c -P 16 4`. Its size is 58,900,961
+v2 signature. The APK passes `zipalign -c -P 16 4`. Its size is 58,999,289
 bytes and its SHA-256 is
-`f734b998ad9f624c6345e4e4b771793581de7797a9d4e698c4ea8cf4791ee098`.
+`f2a9f253943f35d05bd5eeed9c985646d489da6ef0658a95e001e669c0708cee`.
 
 The APK was rebuilt from the checked-in app source on 2026-10-26 with Flutter
 3.47.7, Dart 3.13.5, Android SDK 36, NDK 28.2.13676358, and JDK 21.0.12.1. It

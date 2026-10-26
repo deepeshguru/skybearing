@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/database/catalog_repository.dart';
 import '../core/location/location_service.dart';
 import '../core/location/observer_location_store.dart';
+import '../core/models/celestial_object.dart';
 import '../core/models/device_orientation.dart';
 import '../core/models/orientation_calibration.dart';
 import '../core/models/observer_location.dart';
@@ -25,6 +26,33 @@ final catalogRepositoryProvider = FutureProvider.autoDispose<CatalogStore>((
   ref.onDispose(() => unawaited(repository.close()));
   return repository;
 });
+
+final discoverCategoryObjectsProvider = FutureProvider.autoDispose
+    .family<List<CelestialObject>, CelestialType>((ref, type) async {
+      final repository = await ref.watch(catalogRepositoryProvider.future);
+      final candidates = type == CelestialType.star
+          ? await repository.loadStars()
+          : await repository.loadDeepSkyObjects();
+      final objectsById = <String, CelestialObject>{};
+      for (final object in candidates) {
+        if (object.type == type) {
+          objectsById.putIfAbsent(object.id, () => object);
+        }
+      }
+      final objects = objectsById.values.toList()
+        ..sort((first, second) {
+          final firstMagnitude = first.magnitude;
+          final secondMagnitude = second.magnitude;
+          if (firstMagnitude != null || secondMagnitude != null) {
+            if (firstMagnitude == null) return 1;
+            if (secondMagnitude == null) return -1;
+            final magnitudeOrder = firstMagnitude.compareTo(secondMagnitude);
+            if (magnitudeOrder != 0) return magnitudeOrder;
+          }
+          return first.name.toLowerCase().compareTo(second.name.toLowerCase());
+        });
+      return objects;
+    });
 
 final locationServiceProvider = Provider<LocationService>(
   (ref) => LocationService(),

@@ -76,9 +76,9 @@ handoff; a fresh Android release build and APK validation were completed today.
 - `flutter build apk --release` completed from the checked-in source with
   Flutter 3.47.7, Dart 3.13.5, Android SDK 36, NDK 28.2.13676358, and JDK
   21.0.12.1. Dependency resolution did not modify `pubspec.lock`.
-- The source build produced `artifacts/skybearing-release.apk`, version 0.1.1
-  (version code 2), 58,900,961 bytes, SHA-256
-  `f734b998ad9f624c6345e4e4b771793581de7797a9d4e698c4ea8cf4791ee098`.
+- The source build produced `artifacts/skybearing-release.apk`, version 0.1.2
+  (version code 3), 58,999,289 bytes, SHA-256
+  `f2a9f253943f35d05bd5eeed9c985646d489da6ef0658a95e001e669c0708cee`.
   It targets API 36, supports API 24+, and includes `armeabi-v7a`, `arm64-v8a`,
   and `x86_64`.
 - `apksigner verify` passed with APK Signature Scheme v2 and the retained
@@ -86,7 +86,8 @@ handoff; a fresh Android release build and APK validation were completed today.
   `b1fa3f7ca44e92012a96a5265147d061410588819827ae0125bef978f646b209`).
   `zipalign -c -P 16 4` passed. The package contains location and camera
   permissions, no network, audio, or storage permissions.
-- `flutter analyze lib test/app_navigation_test.dart` passed with no issues.
+- `flutter analyze lib test/app_navigation_test.dart` and analysis of the
+  provider and Discover screen changes passed with no issues.
 - The build emitted non-fatal C initializer and Java compatibility/deprecation
   warnings. Automated tests and emulator/device checks were not rerun in this
   Windows session; the earlier API 36 emulator run is historical. Physical

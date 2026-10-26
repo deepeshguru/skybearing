@@ -12,6 +12,7 @@ It has no backend, login, online astronomy service, or runtime catalog download.
 - Interactive sky map with pinch and press-and-hold zoom, horizon grid,
   constellation stick figures and names, stars, deep-sky targets, Solar System
   objects, and the Milky Way band
+- Discover screen with the full bundled catalog browsable by object category
 - Offline search by object name, catalog identifier, and bundled aliases
 - Object details with calculated azimuth/altitude, equatorial coordinates,
   available catalog measurements, and Solar System rise/set times

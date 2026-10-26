@@ -113,6 +113,41 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               ),
             ),
             const SliverPadding(
+              padding: EdgeInsets.fromLTRB(20, 24, 20, 11),
+              sliver: SliverToBoxAdapter(
+                child: SectionTitle('Browse by category'),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverLayoutBuilder(
+                builder: (context, constraints) {
+                  final categories = CelestialType.values
+                      .where((type) => type != CelestialType.solarSystem)
+                      .toList(growable: false);
+                  final columns = constraints.crossAxisExtent < 300 ? 1 : 2;
+                  final textScale =
+                      MediaQuery.textScalerOf(context).scale(14) / 14;
+                  return SliverGrid.builder(
+                    itemCount: categories.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: (columns == 1 ? 4.3 : 2.35) / textScale,
+                    ),
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return _CategoryTile(
+                        type: category,
+                        onTap: () => _openCategory(context, category),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            const SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, 10),
               sliver: SliverToBoxAdapter(
                 child: SectionTitle('Search the offline catalog'),
@@ -238,7 +273,168 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           builder: (_) => ObjectDetailsScreen(target: target),
         ),
       );
+
+  void _openCategory(BuildContext context, CelestialType type) =>
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => _CategoryObjectsScreen(type: type),
+        ),
+      );
 }
+
+class _CategoryObjectsScreen extends ConsumerWidget {
+  const _CategoryObjectsScreen({required this.type});
+
+  final CelestialType type;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final objects = ref.watch(discoverCategoryObjectsProvider(type));
+    return Scaffold(
+      appBar: AppBar(title: Text(_categoryName(type))),
+      body: objects.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => EmptyState(
+          icon: Icons.storage_outlined,
+          title: 'Local catalog unavailable',
+          body: '$error',
+        ),
+        data: (items) => items.isEmpty
+            ? EmptyState(
+                icon: Icons.search_off,
+                title: 'No objects in this category',
+                body: 'This category has no matching objects in the bundled catalog.',
+              )
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${items.length} objects · sorted by brightness',
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: const Color(0xFF9AA8BD)),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(18, 4, 18, 24),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final target = CelestialTarget.catalog(items[index]);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 3),
+                          child: _TargetTile(
+                            target: target,
+                            onTap: () => _openDetails(context, target),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  void _openDetails(BuildContext context, CelestialTarget target) =>
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ObjectDetailsScreen(target: target),
+        ),
+      );
+}
+
+class _CategoryTile extends StatelessWidget {
+  const _CategoryTile({required this.type, required this.onTap});
+
+  final CelestialType type;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: skyAccent.withValues(alpha: .1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(_categoryIcon(type), color: skyAccent, size: 20),
+            ),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _categoryName(type),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Browse objects',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall
+                        ?.copyWith(color: const Color(0xFF93A2B8)),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFF7788A1)),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+String _categoryName(CelestialType type) => switch (type) {
+  CelestialType.star => 'Stars',
+  CelestialType.galaxy => 'Galaxies',
+  CelestialType.galaxyPair => 'Galaxy pairs',
+  CelestialType.galaxyGroup => 'Galaxy groups',
+  CelestialType.globularCluster => 'Globular clusters',
+  CelestialType.openCluster => 'Open clusters',
+  CelestialType.nebula => 'Nebulae',
+  CelestialType.planetaryNebula => 'Planetary nebulae',
+  CelestialType.emissionNebula => 'Emission nebulae',
+  CelestialType.darkNebula => 'Dark nebulae',
+  CelestialType.supernovaRemnant => 'Supernova remnants',
+  CelestialType.blackHole => 'Black holes',
+  CelestialType.solarSystem => 'Solar System',
+  CelestialType.other => 'Other objects',
+};
+
+IconData _categoryIcon(CelestialType type) => switch (type) {
+  CelestialType.star => Icons.auto_awesome,
+  CelestialType.galaxy ||
+  CelestialType.galaxyPair ||
+  CelestialType.galaxyGroup => Icons.blur_circular,
+  CelestialType.globularCluster || CelestialType.openCluster => Icons.grain,
+  CelestialType.nebula ||
+  CelestialType.planetaryNebula ||
+  CelestialType.emissionNebula ||
+  CelestialType.darkNebula => Icons.cloud_outlined,
+  CelestialType.supernovaRemnant => Icons.brightness_7_outlined,
+  CelestialType.blackHole => Icons.circle_outlined,
+  CelestialType.solarSystem => Icons.public,
+  CelestialType.other => Icons.stars,
+};
 
 class _TargetTile extends StatelessWidget {
   const _TargetTile({required this.target, required this.onTap});
